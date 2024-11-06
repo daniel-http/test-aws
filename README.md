@@ -6,6 +6,9 @@ This repository provides a starter template for creating applications using Next
 
 This template equips you with a foundational Next.js application integrated with AWS Amplify, streamlined for scalability and performance. It is ideal for developers looking to jumpstart their project with pre-configured AWS services like Cognito, AppSync, and DynamoDB.
 
+Follow [this tutorial](https://docs.amplify.aws/nextjs/build-a-backend/data/optimistic-ui/#how-to-use-tanstack-query-query-keys-with-the-amplify-data-api)   if using Tanstack for queries
+
+
 ## Features
 
 - **Authentication**: Setup with Amazon Cognito for secure user authentication.

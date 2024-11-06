@@ -288,7 +288,7 @@ const schema = a.schema({
       ageGroup: a.belongsTo('AgeGroup', 'ageGroupId'),
       position: a.enum([...CODES['POSITION'].map(v => (typeof v === 'string' ? v : v.key))]),
 
-      certicateIssued: a.boolean(),
+      certificateIssued: a.boolean(),
       followUpIssued: a.boolean(),
       followUpMethod: a.enum([...CODES['FOLLOW_UP_METHOD'].map(v => (typeof v === 'string' ? v : v.key))]),
       followUpDate: a.date(),

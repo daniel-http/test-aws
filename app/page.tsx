@@ -41,9 +41,9 @@ Amplify.configure(outputs);
 
 const client = generateClient<Schema>();
 
-const codesFields = ['id', 'name', 'active', 'trainingType.*'];
-const codesFieldsParticipants = [...codesFields, 'participants.*'];
-const codesFieldsTrainings = [...codesFields, 'trainings.*'];
+const codesFields = ['id', 'name', 'active', 'trainingType.*'] as const;
+const codesFieldsParticipants = [...codesFields, 'participants.*'] as const;
+const codesFieldsTrainings = [...codesFields, 'trainings.*'] as const;
 type AgeGroup = SelectionSet<Schema["AgeGroup"]["type"], typeof codesFieldsParticipants>;
 type Audience = SelectionSet<Schema["Audience"]["type"], typeof codesFieldsParticipants>;
 type CredentialType = SelectionSet<Schema["CredentialType"]["type"], typeof codesFieldsTrainings>;
@@ -52,14 +52,14 @@ type Referral = SelectionSet<Schema["Referral"]["type"], typeof codesFieldsTrain
 type Target = SelectionSet<Schema["Target"]["type"], typeof codesFieldsTrainings>;
 type Type = SelectionSet<Schema["Type"]["type"], typeof codesFieldsTrainings>;
 
-const employeeFields = ['id', 'organization', 'name', 'email', 'site', 'duration', 'position', 'training.*'];
+const employeeFields = ['id', 'organization', 'name', 'email', 'site', 'duration', 'position', 'training.*'] as const;
 type Employee = SelectionSet<Schema["Employee"]["type"], typeof employeeFields>;
-const participantFields = ['id', 'searchId', 'firstName', 'lastName', 'email', 'tnpalId', 'fein', 'feinExt', 'facilityName', 'contactTime', 'postalCode', 'county', 'audience.*', 'ageGroup.*', 'position', 'certificateIssued', 'followUpIssued', 'followUpMethod', 'followUpDate', 'training.*'];
+const participantFields = ['id', 'searchId', 'firstName', 'lastName', 'email', 'tnpalId', 'fein', 'feinExt', 'facilityName', 'contactTime', 'postalCode', 'county', 'audience.*', 'ageGroup.*', 'position', 'certificateIssued', 'followUpIssued', 'followUpMethod', 'followUpDate', 'training.*'] as const;
 type Participant = SelectionSet<Schema["Participant"]["type"], typeof participantFields>;
-const competencyTypeFields = ['id', 'name', 'active', 'trainingType.*', 'competencySubTypes.*'];
+const competencyTypeFields = ['id', 'name', 'active', 'trainingType.*', 'competencySubTypes.*'] as const;
 type CompetencyType = SelectionSet<Schema["CompetencyType"]["type"], typeof competencyTypeFields>;
 
-const competencySubTypeFields = ['id', 'name', 'active', 'sort', 'competencyType.*', 'trainings.*'];
+const competencySubTypeFields = ['id', 'name', 'active', 'sort', 'competencyType.*', 'trainings.*'] as const;
 type CompetencySubType = SelectionSet<Schema["CompetencySubType"]["type"], typeof competencySubTypeFields>;
 
 const tenantFields = ['id', 'name', 'code', 'active', 'trainings.*'] as const;
@@ -139,7 +139,7 @@ export default function App() {
         error: (err) => {},
       });
     }
-        
+
     function listDeliveries() {
       return client.models.Delivery.observeQuery({ selectionSet: [...codesFieldsTrainings]}).subscribe({
         next: (data) => setDeliveries([...data.items as unknown as Delivery[]]),
@@ -148,7 +148,7 @@ export default function App() {
     }
     
     function listEmployees() {
-      return client.models.Employee.observeQuery({ selectionSet: [...competencySubTypeFields]}).subscribe({
+      return client.models.Employee.observeQuery({ selectionSet: [...employeeFields]}).subscribe({
         next: (data) => setEmployees([...data.items as unknown as Employee[]]),
         error: (err) => {},
       });
@@ -205,7 +205,7 @@ export default function App() {
     const deliveriesSubscription = listDeliveries();
     const employeesSubscription = listEmployees();
     const participantsSubscription = listParticipants();
-    const referralsSubscription = listParticipants();
+    const referralsSubscription = listReferrals();
     const targetsSubscription = listTargets();
     const tenantsSubscription = listTenants();
     const trainingsSubscription = listTrainings();
@@ -385,7 +385,7 @@ export default function App() {
               {participants.map((participant) => (
                 <li key={participant.id}>
                   <Text>
-                    Name: {participant.firstName} {participant.lastName} | Email: {participant.email} | TNPAL ID: {participant.tnpalId} | Duration: {participant.contactTime} | FEIN: {participant.fein} EXT: {participant.feinExt} | Facility Name: {participant.facilityName} | Postal Code: {employee.postalCode} | County {employee.county} | Audience {employee.audience?.name} | Age Group: {employee.ageGroup?.name} | Position: {employee.position} | Certificate Issued: {employee.certificateIssued ? "y" : "n"} | Follow Up Issued: {employee.followUpIssued ? "y" : "n"} | Follow Up Method: {employee.followUpMethod} | Follow Up Date: {employee.followUpDate}
+                    Name: {participant.firstName} {participant.lastName} | Email: {participant.email} | TNPAL ID: {participant.tnpalId} | Duration: {participant.contactTime} | FEIN: {participant.fein} EXT: {participant.feinExt} | Facility Name: {participant.facilityName} | Postal Code: {participant.postalCode} | County {participant.county} | Audience {participant.audience?.name} | Age Group: {participant.ageGroup?.name} | Position: {participant.position} | Certificate Issued: {participant.certificateIssued ? "y" : "n"} | Follow Up Issued: {participant.followUpIssued ? "y" : "n"} | Follow Up Method: {participant.followUpMethod} | Follow Up Date: {participant.followUpDate}
                     <Button size="small"  variation="link" onClick={() => setSelectedParticipant(participant)}>Edit</Button>
                   </Text>                  
                 </li>

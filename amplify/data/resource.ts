@@ -135,7 +135,7 @@ const schema = a.schema({
     trainingTypeId: a.id().required(),
     trainingType: a.belongsTo('TrainingType', 'trainingTypeId'),
     participants: a.hasMany('Participant', 'ageGroupId'),
-  }),
+  }).authorization(allow => allow.groups(["FOO"])),
 
   Audience: a.model({
     name: a.string().required(),

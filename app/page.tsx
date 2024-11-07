@@ -7,7 +7,7 @@ import "./../app/app.css";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
-import { Button, Flex, Text } from "@aws-amplify/ui-react";
+import { Authenticator, Button, Flex, Text } from "@aws-amplify/ui-react";
 import TenantCreateForm from "@/ui-components/TenantCreateForm";
 import TrainingCreateForm from "@/ui-components/TrainingCreateForm";
 import TenantUpdateForm from "@/ui-components/TenantUpdateForm";
@@ -84,6 +84,9 @@ export default function App() {
   const [selectedCompetencyType, setSelectedCompetencyType] = useState<CompetencyType>();
   const [competencyTypes, setCompetencyTypes] = useState<CompetencyType[]>([]);
 
+  const [selectedCredentialType, setSelectedCredentialType] = useState<CredentialType>();
+  const [credentialTypes, setCredentialTypes] = useState<CredentialType[]>([]);
+
   const [selectedCompetencySubType, setSelectedCompetencySubType] = useState<CompetencySubType>();
   const [competencySubTypes, setCompetencySubTypes] = useState<CompetencySubType[]>([]);
 
@@ -130,6 +133,12 @@ export default function App() {
     function listCompetencyTypes() {
       return client.models.CompetencyType.observeQuery({ selectionSet: [...competencyTypeFields]}).subscribe({
         next: (data) => setCompetencyTypes([...data.items as unknown as CompetencyType[]]),
+        error: (err) => {},
+      });
+    }    
+    function listCredentialTypes() {
+      return client.models.CredentialType.observeQuery({ selectionSet: [...codesFieldsTrainings]}).subscribe({
+        next: (data) => setCredentialTypes([...data.items as unknown as CredentialType[]]),
         error: (err) => {},
       });
     }    
@@ -201,6 +210,7 @@ export default function App() {
     const ageGroupsSubscription = listAgeGroups();
     const audiencesSubscription = listAudiences();
     const competencyTypesSubscription = listCompetencyTypes();
+    const credentialTypesSubscription = listCredentialTypes();
     const competencySubTypesSubscription = listCompetencySubTypes();
     const deliveriesSubscription = listDeliveries();
     const employeesSubscription = listEmployees();
@@ -215,6 +225,7 @@ export default function App() {
       ageGroupsSubscription.unsubscribe();
       audiencesSubscription.unsubscribe();
       competencyTypesSubscription.unsubscribe();
+      credentialTypesSubscription.unsubscribe();
       competencySubTypesSubscription.unsubscribe();
       deliveriesSubscription.unsubscribe();
       employeesSubscription.unsubscribe();
@@ -229,310 +240,340 @@ export default function App() {
   }, [setAgeGroups, setAudiences, setCompetencyTypes, setCompetencySubTypes, setDeliveries, setEmployees, setParticipants, setReferrals, setTargets, setTenants, setTrainings, setTrainingTypes, setTypes]);
 
   return (
-    <main>
-      <Flex direction="column">
+        <main>
+        <Authenticator>
+        {({ signOut, user }) => (
         <Flex direction="column">
-          <h1>Age Group</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <AgeGroupCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <AgeGroupUpdateForm id={selectedAgeGroup?.id} />
-            </div>
+          <Flex direction="column">
+            <h1>Hello {user?.signInDetails?.loginId}</h1>
+            <button onClick={signOut}>Sign out</button>
           </Flex>
-          <ul>
-              {ageGroups.map((ageGroup) => (
-                <li key={ageGroup.id}>
-                  <Text>
-                    Name: {ageGroup.name} | Active: {ageGroup.active ? "y" : "n"} | Training Type: {ageGroup.trainingType.name} | Participants: {ageGroup.participants?.length} 
-                    <Button size="small"  variation="link" onClick={() => setSelectedAgeGroup(ageGroup)}>Edit</Button>
-                  </Text>                  
-                </li>
-              ))}
-            </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Audience</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <AudienceCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <AudienceUpdateForm id={selectedAudience?.id} />
-            </div>
+          <Flex direction="column">
+            <h1>Age Group</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <AgeGroupCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <AgeGroupUpdateForm id={selectedAgeGroup?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {ageGroups.map((ageGroup) => (
+                  <li key={ageGroup.id}>
+                    <Text>
+                      Name: {ageGroup.name} | Active: {ageGroup.active ? "y" : "n"} | Training Type: {ageGroup.trainingType.name} | Participants: {ageGroup.participants?.length} 
+                      <Button size="small"  variation="link" onClick={() => setSelectedAgeGroup(ageGroup)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
           </Flex>
-          <ul>
-              {audiences.map((audience) => (
-                <li key={audience.id}>
-                  <Text>
-                    Name: {audience.name} | Active: {audience.active ? "y" : "n"} | Training Type: {audience.trainingType.name} | Participants: {audience.participants?.length} 
-                    <Button size="small"  variation="link" onClick={() => setSelectedAudience(audience)}>Edit</Button>
-                  </Text>                  
-                </li>
-              ))}
-            </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Competency Type</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <CompetencyTypeCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <CompetencyTypeUpdateForm id={selectedCompetencyType?.id} />
-            </div>
+          <Flex direction="column">
+            <h1>Audience</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <AudienceCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <AudienceUpdateForm id={selectedAudience?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {audiences.map((audience) => (
+                  <li key={audience.id}>
+                    <Text>
+                      Name: {audience.name} | Active: {audience.active ? "y" : "n"} | Training Type: {audience.trainingType.name} | Participants: {audience.participants?.length} 
+                      <Button size="small"  variation="link" onClick={() => setSelectedAudience(audience)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
           </Flex>
-          <ul>
-              {competencyTypes.map((competencyType) => (
-                <li key={competencyType.id}>
-                  <Text>
-                    Name: {competencyType.name} | Active: {competencyType.active ? "y" : "n"} | Training Type: {competencyType.trainingType.name} | Competency Sub Types: {competencyType.competencySubTypes?.length} 
-                    <Button size="small"  variation="link" onClick={() => setSelectedCompetencyType(competencyType)}>Edit</Button>
-                  </Text>                  
-                </li>
-              ))}
-            </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Competency SubType</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <CompetencySubTypeCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <CompetencySubTypeUpdateForm id={selectedCompetencySubType?.id} />
-            </div>
+          <Flex direction="column">
+            <h1>Competency Type</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <CompetencyTypeCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <CompetencyTypeUpdateForm id={selectedCompetencyType?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {competencyTypes.map((competencyType) => (
+                  <li key={competencyType.id}>
+                    <Text>
+                      Name: {competencyType.name} | Active: {competencyType.active ? "y" : "n"} | Training Type: {competencyType.trainingType.name} | Competency Sub Types: {competencyType.competencySubTypes?.length} 
+                      <Button size="small"  variation="link" onClick={() => setSelectedCompetencyType(competencyType)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
           </Flex>
-          <ul>
-              {competencySubTypes.map((competencySubType) => (
-                <li key={competencySubType.id}>
-                  <Text>
-                    Name: {competencySubType.name} | Active: {competencySubType.active ? "y" : "n"} | Sort order: {competencySubType.sort} | Competency Type: {competencySubType.competencyType?.name} | Trainings: {competencySubType.trainings?.length} 
-                    <Button size="small"  variation="link" onClick={() => setSelectedCompetencySubType(competencySubType)}>Edit</Button>
-                  </Text>                  
-                </li>
-              ))}
-            </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Delivery</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <DeliveryCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <DeliveryUpdateForm id={selectedDelivery?.id} />
-            </div>
+          <Flex direction="column">
+            <h1>Credential Type</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <CredentialTypeCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <CredentialTypeUpdateForm id={selectedAudience?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {credentialTypes.map((credentialType) => (
+                  <li key={credentialType.id}>
+                    <Text>
+                      Name: {credentialType.name} | Active: {credentialType.active ? "y" : "n"} | Training Type: {credentialType.trainingType.name} 
+                      <Button size="small"  variation="link" onClick={() => setSelectedCredentialType(credentialType)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
           </Flex>
-          <ul>
-              {deliveries.map((delivery) => (
-                <li key={delivery.id}>
-                  <Text>
-                    Name: {delivery.name} | Active: {delivery.active ? "y" : "n"} | Training Type: {delivery.trainingType?.name} | Trainings: {delivery.trainings?.length} 
-                    <Button size="small"  variation="link" onClick={() => setSelectedDelivery(delivery)}>Edit</Button>
-                  </Text>                  
-                </li>
-              ))}
-            </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Employee</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <EmployeeCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <EmployeeUpdateForm id={selectedEmployee?.id} />
-            </div>
+          <Flex direction="column">
+            <h1>Competency SubType</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <CompetencySubTypeCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <CompetencySubTypeUpdateForm id={selectedCompetencySubType?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {competencySubTypes.map((competencySubType) => (
+                  <li key={competencySubType.id}>
+                    <Text>
+                      Name: {competencySubType.name} | Actives: {competencySubType.active ? "y" : "n"} | Sort order: {competencySubType.sort} | Competency Type: {competencySubType.competencyType?.name} | Trainings: {competencySubType.trainings?.length} 
+                      <Button size="small"  variation="link" onClick={() => setSelectedCompetencySubType(competencySubType)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
           </Flex>
-          <ul>
-              {employees.map((employee) => (
-                <li key={employee.id}>
-                  <Text>
-                    Name: {employee.name} | Organization: {employee.organization} | Email: {employee.email} | Site: {employee.site} | Training Hours: {employee.duration} | Training: {employee.training.id} | Position: {employee.position}
-                    <Button size="small"  variation="link" onClick={() => setSelectedEmployee(employee)}>Edit</Button>
-                  </Text>                  
-                </li>
-              ))}
-            </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Participant</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <ParticipantCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <ParticipantUpdateForm id={selectedParticipant?.id} />
-            </div>
+          <Flex direction="column">
+            <h1>Delivery</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <DeliveryCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <DeliveryUpdateForm id={selectedDelivery?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {deliveries.map((delivery) => (
+                  <li key={delivery.id}>
+                    <Text>
+                      Name: {delivery.name} | Active: {delivery.active ? "y" : "n"} | Training Type: {delivery.trainingType?.name} | Trainings: {delivery.trainings?.length} 
+                      <Button size="small"  variation="link" onClick={() => setSelectedDelivery(delivery)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
           </Flex>
-          <ul>
-              {participants.map((participant) => (
-                <li key={participant.id}>
-                  <Text>
-                    Name: {participant.firstName} {participant.lastName} | Email: {participant.email} | TNPAL ID: {participant.tnpalId} | Duration: {participant.contactTime} | FEIN: {participant.fein} EXT: {participant.feinExt} | Facility Name: {participant.facilityName} | Postal Code: {participant.postalCode} | County {participant.county} | Audience {participant.audience?.name} | Age Group: {participant.ageGroup?.name} | Position: {participant.position} | Certificate Issued: {participant.certificateIssued ? "y" : "n"} | Follow Up Issued: {participant.followUpIssued ? "y" : "n"} | Follow Up Method: {participant.followUpMethod} | Follow Up Date: {participant.followUpDate}
-                    <Button size="small"  variation="link" onClick={() => setSelectedParticipant(participant)}>Edit</Button>
-                  </Text>                  
-                </li>
-              ))}
-            </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Referral</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <ReferralCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <ReferralUpdateForm id={selectedReferral?.id} />
-            </div>
+          <Flex direction="column">
+            <h1>Employee</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <EmployeeCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <EmployeeUpdateForm id={selectedEmployee?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {employees.map((employee) => (
+                  <li key={employee.id}>
+                    <Text>
+                      Name: {employee.name} | Organization: {employee.organization} | Email: {employee.email} | Site: {employee.site} | Training Hours: {employee.duration} | Training: {employee.training.id} | Position: {employee.position}
+                      <Button size="small"  variation="link" onClick={() => setSelectedEmployee(employee)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
           </Flex>
-          <ul>
-              {referrals.map((referral) => (
-                <li key={referral.id}>
-                  <Text>
-                    Name: {referral.name} | Active: {referral.active ? "y" : "n"} | Training Type: {referral.trainingType.name} | Trainings: {referral.trainings?.length}
-                    <Button size="small"  variation="link" onClick={() => setSelectedReferral(referral)}>Edit</Button>
-                  </Text>                  
-                </li>
-              ))}
-            </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Target</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <TargetCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <TargetUpdateForm id={selectedTarget?.id} />
-            </div>
+          <Flex direction="column">
+            <h1>Participant</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <ParticipantCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <ParticipantUpdateForm id={selectedParticipant?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {participants.map((participant) => (
+                  <li key={participant.id}>
+                    <Text>
+                      Name: {participant.firstName} {participant.lastName} | Email: {participant.email} | TNPAL ID: {participant.tnpalId} | Duration: {participant.contactTime} | FEIN: {participant.fein} EXT: {participant.feinExt} | Facility Name: {participant.facilityName} | Postal Code: {participant.postalCode} | County {participant.county} | Audience {participant.audience?.name} | Age Group: {participant.ageGroup?.name} | Position: {participant.position} | Certificate Issued: {participant.certificateIssued ? "y" : "n"} | Follow Up Issued: {participant.followUpIssued ? "y" : "n"} | Follow Up Method: {participant.followUpMethod} | Follow Up Date: {participant.followUpDate}
+                      <Button size="small"  variation="link" onClick={() => setSelectedParticipant(participant)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
           </Flex>
-          <ul>
-              {targets.map((target) => (
-                <li key={target.id}>
-                  <Text>
-                    Name: {target.name} | Active: {target.active ? "y" : "n"} | Training Type: {target.trainingType.name} | Trainings: {target.trainings?.length}
-                    <Button size="small"  variation="link" onClick={() => setSelectedTarget(target)}>Edit</Button>
-                  </Text>                  
-                </li>
-              ))}
-            </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Tenant</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <TenantCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <TenantUpdateForm id={selectedTenant?.id} />
-            </div>
+          <Flex direction="column">
+            <h1>Referral</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <ReferralCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <ReferralUpdateForm id={selectedReferral?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {referrals.map((referral) => (
+                  <li key={referral.id}>
+                    <Text>
+                      Name: {referral.name} | Active: {referral.active ? "y" : "n"} | Training Type: {referral.trainingType.name} | Trainings: {referral.trainings?.length}
+                      <Button size="small"  variation="link" onClick={() => setSelectedReferral(referral)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
           </Flex>
-          <ul>
-              {tenants.map((tenant) => (
-                <li key={tenant.id}>
+          <Flex direction="column">
+            <h1>Target</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <TargetCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <TargetUpdateForm id={selectedTarget?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {targets.map((target) => (
+                  <li key={target.id}>
+                    <Text>
+                      Name: {target.name} | Active: {target.active ? "y" : "n"} | Training Type: {target.trainingType.name} | Trainings: {target.trainings?.length}
+                      <Button size="small"  variation="link" onClick={() => setSelectedTarget(target)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
+          </Flex>
+          <Flex direction="column">
+            <h1>Tenant</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <TenantCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <TenantUpdateForm id={selectedTenant?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {tenants.map((tenant) => (
+                  <li key={tenant.id}>
+                    <Text>
+                      {tenant.name} | {tenant.code} | {tenant.active ? "y" : "n"} | {tenant.trainings?.length} 
+                      <Button size="small"  variation="link" onClick={() => setSelectedTenant(tenant)}>Edit</Button>
+                    </Text>
+                    
+                  </li>
+                ))}
+              </ul>
+          </Flex>
+  
+          <Flex direction="column">
+            <h1>Training</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <TrainingCreateForm overrides={{tenantId: { value: selectedTenant?.id }}} />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <TrainingUpdateForm id={selectedTraining?.id} />
+              </div>
+            </Flex>
+            <ul>
+              {trainings.map((training) => (
+                <li key={training.id}>
                   <Text>
-                    {tenant.name} | {tenant.code} | {tenant.active ? "y" : "n"} | {tenant.trainings?.length} 
-                    <Button size="small"  variation="link" onClick={() => setSelectedTenant(tenant)}>Edit</Button>
+                  {training.lookupId} | {training.duration} | {training.startDate} | {training.trainingType?.name}  | {training.trainingType?.tenant?.name} 
+                  <Button size="small"  variation="link" onClick={() => setSelectedTraining(training)}>Edit</Button>
                   </Text>
-                  
-                </li>
+                  </li>
               ))}
             </ul>
-        </Flex>
-
-        <Flex direction="column">
-          <h1>Training</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <TrainingCreateForm overrides={{tenantId: { value: selectedTenant?.id }}} />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <TrainingUpdateForm id={selectedTraining?.id} />
-            </div>
           </Flex>
-          <ul>
-            {trainings.map((training) => (
-              <li key={training.id}>
-                <Text>
-                {training.lookupId} | {training.duration} | {training.startDate} | {training.trainingType?.name}  | {training.trainingType?.tenant?.name} 
-                <Button size="small"  variation="link" onClick={() => setSelectedTraining(training)}>Edit</Button>
-                </Text>
-                </li>
-            ))}
-          </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Training Type</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <TrainingTypeCreateForm overrides={{tenantId: { value: selectedTenant?.id }}} />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <TrainingTypeUpdateForm id={selectedTrainingType?.id} />
-            </div>
-          </Flex>
-          <ul>
-            {trainingTypes.map((trainingType) => (
-              <li key={trainingType.id}>
-                <Text flex={"flex"}>
-                {trainingType.name} | {trainingType.code} | {trainingType.active} | {trainingType.tenant?.name} 
-                <Button size="small"  variation="link" onClick={() => setSelectedTrainingType(trainingType)}>Edit</Button>
-                </Text>
-                </li>
-            ))}
-          </ul>
-        </Flex>
-        <Flex direction="column">
-          <h1>Type</h1>
-          <Flex direction="row">
-            <div>
-              <h4>Create</h4>
-              <TypeCreateForm />
-            </div>
-            <div>
-              <h4>Update</h4>
-              <TypeUpdateForm id={selectedType?.id} />
-            </div>
-          </Flex>
-          <ul>
-              {types.map((type) => (
-                <li key={type.id}>
-                  <Text>
-                    Name: {type.name} | Active: {type.active ? "y" : "n"} | Training Type: {type.trainingType?.name} | Trainings: {type.trainings?.length} 
-                    <Button size="small"  variation="link" onClick={() => setSelectedType(type)}>Edit</Button>
-                  </Text>                  
-                </li>
+          <Flex direction="column">
+            <h1>Training Type</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <TrainingTypeCreateForm overrides={{tenantId: { value: selectedTenant?.id }}} />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <TrainingTypeUpdateForm id={selectedTrainingType?.id} />
+              </div>
+            </Flex>
+            <ul>
+              {trainingTypes.map((trainingType) => (
+                <li key={trainingType.id}>
+                  <Text flex={"flex"}>
+                  {trainingType.name} | {trainingType.code} | {trainingType.active} | {trainingType.tenant?.name} 
+                  <Button size="small"  variation="link" onClick={() => setSelectedTrainingType(trainingType)}>Edit</Button>
+                  </Text>
+                  </li>
               ))}
             </ul>
-        </Flex>
-      </Flex>
-    </main>
+          </Flex>
+          <Flex direction="column">
+            <h1>Type</h1>
+            <Flex direction="row">
+              <div>
+                <h4>Create</h4>
+                <TypeCreateForm />
+              </div>
+              <div>
+                <h4>Update</h4>
+                <TypeUpdateForm id={selectedType?.id} />
+              </div>
+            </Flex>
+            <ul>
+                {types.map((type) => (
+                  <li key={type.id}>
+                    <Text>
+                      Name: {type.name} | Active: {type.active ? "y" : "n"} | Training Type: {type.trainingType?.name} | Trainings: {type.trainings?.length} 
+                      <Button size="small"  variation="link" onClick={() => setSelectedType(type)}>Edit</Button>
+                    </Text>                  
+                  </li>
+                ))}
+              </ul>
+          </Flex>
+        </Flex>)}
+        </Authenticator>
+      </main>    
   );
 }
